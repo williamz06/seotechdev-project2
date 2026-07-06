@@ -1,3 +1,30 @@
+:root {
+    --page-background: #f6f7f9;
+    --surface: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #475467;
+    --text-muted: #667085;
+    --border: #dcdfe4;
+    --accent: #111827;
+    --positive: #15803d;
+    --negative: #b91c1c;
+}
+
+p {
+    color: var(--text-secondary);
+}
+
+body {
+    background-color: var(--page-background);
+    color: var(--text-primary);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
 main {
     max-width: 1000px;
     margin-left: auto;
@@ -12,16 +39,16 @@ main {
 }
 .category-filter {
     padding: 0.5rem 0.9rem;
-    border: 1px solid lightgray;
+    border: 1px solid var(--border);
     border-radius: 999px;
-    background-color: white;
+    background: var(--surface);
     cursor: pointer;
 }
 
 .category-filter--active {
-    background-color: black;
-    border-color: darkslategray;
+    background: var(--accent);
     color: white;
+    border-color: darkslategray;
 }
 
 .category-filter:not(.category-filter--active):hover {
@@ -36,10 +63,10 @@ main {
 }
 
 .event-card {
-    background-color: white;
+    background: var(--surface);
+    border: 1px solid var(--border);
     padding: 1rem;
-    border: 1px solid lightgray;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
@@ -50,7 +77,7 @@ main {
 
 .event-card__metadata {
     margin: 0;
-    color: dimgray;
+    color: var(--text-muted);
     font-size: 0.9rem;
     text-transform: uppercase;
 }
@@ -65,7 +92,7 @@ main {
     gap: 1rem;
     justify-content: space-between;
     align-items: flex-start;
-    border-top: 1px solid lightgray;
+    border-top: 1px solid var(--border);
     padding-top: 0.75rem;
 }
 
@@ -80,7 +107,7 @@ main {
 .comparison-item p {
     margin: 0;
     font-size: 0.9rem;
-    color: dimgray;
+    color: var(--text-muted);
 }
 
 .comparison-item strong {
