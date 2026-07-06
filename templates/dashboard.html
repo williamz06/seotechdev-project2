@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+  <header></header>
+  <main>
+    <h1>Compare market odds with public sentiment</h1>
+    <p>
+      Explore how prediction-market probabilities compare with discussions across social media.
+    </p>
+    <div class="category-filters">
+      <button type="button" class="category-filter category-filter--active">All</button>
+      <button type="button" class="category-filter">Sports</button>
+      <button type="button" class="category-filter">Politics</button>
+      <button type="button" class="category-filter">Entertainment</button>
+    </div>
+    <div class="events-grid">
+      <article class="event-card">
+        <p class="event-card__metadata">Sports · Kalshi</p>
+
+        <h2 class="event-card__title">Will France win the 2026 Men's World Cup?</h2>
+
+        <div class="event-card__comparison">
+          <section class="comparison-item">
+            <p>Market Probability</p>
+            <strong>42% Yes</strong>
+          </section>
+
+          <section class="comparison-item">
+            <p>Social sentiment</p>
+            <strong>57% Yes</strong>
+          </section>
+        </div>
+      </article>
+
+      <article class="event-card">
+        <p class="event-card__metadata">Politics · Polymarket</p>
+
+        <h2 class="event-card__title">Will the Federal Reserve lower interest rates before the end of 2026?</h2>
+
+        <div class="event-card__comparison">
+          <section class="comparison-item">
+            <p>Market Probability</p>
+            <strong>8% Yes</strong>
+          </section>
+
+          <section class="comparison-item">
+            <p>Social sentiment</p>
+            <strong>93% Yes</strong>
+          </section>
+        </div>
+      </article>
+    </div>
+  </main>
+</body>
+</html>
