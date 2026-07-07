@@ -1,0 +1,4 @@
+oddspipe
+flask
+flask-sqlalchemy
+python-dotenv
