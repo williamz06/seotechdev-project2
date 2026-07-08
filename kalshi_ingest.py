@@ -25,7 +25,7 @@ class Market(db.Model):
 
 with app.app_context():
     db.create_all()
-    
+
 def normalize_kalshi_market(m):
     yes_price = float(m["last_price_dollars"])
     return {
@@ -62,28 +62,13 @@ def upsert_markets(markets):
                 db.session.add(new_market)
         db.session.commit()
 
-# Below is code to find the right tickers, which are used to get the markets. We only want US election markets. 
 BASE_URL = "https://external-api.kalshi.com/trade-api/v2"
 
-US_STATES = {
-    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL",
-    "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY",
-    "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"
-}
-
-def get_series_list():
-    response = requests.get(f"{BASE_URL}/series")
+def get_series_list(tags=None):
+    params = {"tags": tags} if tags else {}
+    response = requests.get(f"{BASE_URL}/series", params=params)
     response.raise_for_status()
     return response.json()["series"]
-
-def is_us_election_series(series):
-    ticker = series["ticker"].upper()
-    for prefix in ("SENATE", "HOUSE", "GOV"):
-        if prefix in ticker:
-            idx = ticker.find(prefix) + len(prefix)
-            if ticker[idx:idx+2] in US_STATES:
-                return True
-    return False
 
 def get_markets(series_ticker, status="open", limit=100):
     params = {"status": status, "limit": limit, "series_ticker": series_ticker}
@@ -92,13 +77,13 @@ def get_markets(series_ticker, status="open", limit=100):
     return response.json()["markets"]
 
 if __name__ == "__main__":
-    series_list = get_series_list()
-    election_series = [s for s in series_list if s.get("category") == "Elections"]
-    us_series = [s for s in election_series if is_us_election_series(s)]
+    us_series = get_series_list(tags="US Elections")
     all_markets = []
     for series in us_series:
         markets = get_markets(series_ticker=series["ticker"])
+        markets = [m for m in markets if m.get("market_type") == "binary"]
         all_markets.extend(markets)
         time.sleep(0.3)
+    print(len(all_markets))
     all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
     upsert_markets(all_markets)
