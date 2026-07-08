@@ -78,7 +78,7 @@ def get_series_list():
 
 def is_us_election_series(series):
     ticker = series["ticker"].upper()
-    for prefix in ("SENATE", "GOV"):
+    for prefix in ("SENATE", "HOUSE", "GOV"):
         if prefix in ticker:
             idx = ticker.find(prefix) + len(prefix)
             if ticker[idx:idx+2] in US_STATES:
