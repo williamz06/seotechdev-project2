@@ -20,7 +20,7 @@ except Exception:
     RETRYABLE = (Exception,)
 
 
-MATCH_ID = "BRAvARG_2026-07-06"
+EVENT_ID = "US_PREZ_2028_BASELINE"
 
 # Kickoff time stamp 
 # Bounded Window for a given game to filter pre and post match
@@ -29,16 +29,34 @@ MATCH_MINUTES =  120
 WINDOW_PAD_MIN = 30 # buffer
 
 # Matching keywords in posts
-MATCH_QUERIES = ["Brazil Argentina", "#BRAvARG", "#ARGvBRA"]
-TEAM_QUERIES = {
-    "brazil":    ["Brazil", "Brasil", "Sele\u00e7\u00e3o", "#BRA"],
-    "argentina": ["Argentina", "Albiceleste", "#ARG"],
+MARKET_QUERIES = [
+    "2028 election", "2028 presidential", "next president 2028",
+    "polymarket election", "election contract"
+]
+OPTIONS_QUERIES = {
+    "democrat": [
+        "Democrats", "Democrat", "DNC", "Blue wave", 
+        "Harris", "Newsom", "Shapiro" # Adapts as candidates emerge
+    ],
+    "republican": [
+        "Republicans", "Republican", "GOP", "Red wave", "MAGA",
+        "Vance", "DeSantis", "Trump 2028"
+    ],
+    "third_party": [
+        "Third party", "Libertarian", "Green party", "RFK Jr"
+    ]
 }
 
-MAX_POSTS_PER_QUERY = 3000
+RESOLUTION_QUERIES = [
+    "election resolution", "associated press call", "fox news call", 
+    "nbc call", "inauguration date", "january 20 2029"
+]
+
+
+MAX_POSTS_PER_QUERY = 5000
 
 PAGE_SLEEP_SEC = 0.5 # prevent timeout
-OUTPUT_CSV = f"BLUESKY_POSTS_{MATCH_ID}.csv"
+OUTPUT_CSV = f"BLUESKY_POSTS_{EVENT_ID}.csv"
 
 def iso_z(dt):
     """
@@ -129,10 +147,14 @@ def main():
     print(f"Match window (indexed-time filter): {since} -> {until}")
     
     # Query Match, Teams
-    plan = [(q, None) for q in MATCH_QUERIES]
-
-    for team, queries in TEAM_QUERIES.items():
-        plan += [(q, team) for q in queries]
+    plan = []
+    for q in MARKET_QUERIES:
+        plan.append((q, "macro_market"))
+    for q in RESOLUTION_QUERIES:
+        plan.append((q, "resolution_clause"))
+    for category, queries in OPTIONS_QUERIES.items():
+        for q in queries:
+            plan.append((q, f"party_{category}"))
     
     rows_by_uri = {}
 

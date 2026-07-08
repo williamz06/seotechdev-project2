@@ -1,2 +1,10 @@
 flask
 praw
+python-dotenv
+pandas
+requests
+
+
+
+atproto
+ollama
