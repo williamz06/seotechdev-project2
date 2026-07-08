@@ -15,7 +15,7 @@
         <div class="detail-content">
             <div class="analysis-grid">
                 <section>
-                    <div class="price-panels">
+                    <div class="price-panels card">
                         <h2>Market-implied odds</h2>
                         <div class="price-panel">
                             <p>Yes</p>
@@ -32,20 +32,18 @@
                         </div>
                     </div>
                 </section>
-                <section>
-                    <div class="social-analysis__card">
-                        <h2>Social Analysis</h2>
-                        <strong>Positive</strong>
-                        <p>Discussion currently leans toward the Yes outcome.</p>
-                    </div>
+                <section class="social-analysis__card card">
+                    <h2>Social Analysis</h2>
+                    <strong class="sentiment-result sentiment-result--positive">↑ 57% Yes</strong>
+                    <p>Discussion currently leans positive toward the Yes outcome.</p>
                 </section>
             </div>
             <section class="discussion-section">
                 <h2>Discussion</h2>
-                <article class="discussion-card">
+                <article class="discussion-card card">
                     <div class="discussion-card__header">
                         <p class="discussion-card__author">u/example_user</p>
-                        <p class="discussion-card__sentiment discussion-card__sentiment--positive">Positive</p>
+                        <p class="badge badge--positive">Positive</p>
                     </div>
                     <div class="discussion-card__body">
                         <p>
@@ -58,10 +56,10 @@
                     </div>
                 </article>
 
-                <article class="discussion-card">
+                <article class="discussion-card card">
                     <div class="discussion-card__header">
                         <p class="discussion-card__author">u/another_user</p>
-                        <p class="discussion-card__sentiment discussion-card__sentiment--negative">Negative</p>
+                        <p class="badge badge--negative">Negative</p>
                     </div>
                     <div class="discussion-card__body">
                         <p>
@@ -73,10 +71,10 @@
                     </div>
                 </article>
 
-                <article class="discussion-card">
+                <article class="discussion-card card">
                     <div class="discussion-card__header">
                         <p class="discussion-card__author">u/example_user</p>
-                        <p class="discussion-card__sentiment discussion-card__sentiment--positive">Positive</p>
+                        <p class="badge badge--positive">Positive</p>
                     </div>
                     <div class="discussion-card__body">
                         <p>
@@ -89,10 +87,10 @@
                     </div>
                 </article>
 
-                <article class="discussion-card">
+                <article class="discussion-card card">
                     <div class="discussion-card__header">
                         <p class="discussion-card__author">u/another_user</p>
-                        <p class="discussion-card__sentiment discussion-card__sentiment--negative">Negative</p>
+                        <p class="badge badge--negative">Negative</p>
                     </div>
                     <div class="discussion-card__body">
                         <p>
@@ -104,10 +102,10 @@
                     </div>
                 </article>
 
-                <article class="discussion-card">
+                <article class="discussion-card card">
                     <div class="discussion-card__header">
                         <p class="discussion-card__author">u/example_user</p>
-                        <p class="discussion-card__sentiment discussion-card__sentiment--positive">Positive</p>
+                        <p class="badge badge--positive">Positive</p>
                     </div>
                     <div class="discussion-card__body">
                         <p>
@@ -120,10 +118,10 @@
                     </div>
                 </article>
 
-                <article class="discussion-card">
+                <article class="discussion-card card">
                     <div class="discussion-card__header">
                         <p class="discussion-card__author">u/another_user</p>
-                        <p class="discussion-card__sentiment discussion-card__sentiment--negative">Negative</p>
+                        <p class="badge badge--negative">Negative</p>
                     </div>
                     <div class="discussion-card__body">
                         <p>
@@ -137,7 +135,7 @@
             </section>
         </div>
 
-        <aside class="market-sidebar">
+        <aside class="market-sidebar card">
             <h2>Market information</h2>
             <dl>
                 <div>
@@ -161,7 +159,7 @@
                     <dd>2 minutes ago</dd>
                 </div>
             </dl>
-            <a href="#">View on Kalshi ↗</a>
+            <a href="#" class="button button--primary">View on Kalshi ↗</a>
         </aside>
     </div>
 </main>

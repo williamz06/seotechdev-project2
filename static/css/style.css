@@ -1,13 +1,17 @@
 :root {
     --page-background: #f6f7f9;
-    --surface: #ffffff;
+    --surface: white;
+    --surface-secondary: whitesmoke;
     --text-primary: #111827;
     --text-secondary: #475467;
     --text-muted: #667085;
     --border: #dcdfe4;
     --accent: #111827;
+    --accent-secondary: #475467;
     --positive: #15803d;
+    --positive-secondary: #dcfce7;
     --negative: #b91c1c;
+    --negative-secondary: #fee2e2;
 }
 
 p {
@@ -52,22 +56,31 @@ main {
     flex-wrap: wrap;
     padding: 1rem 0;
 }
-.category-filter {
-    padding: 0.5rem 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--surface);
+
+.button {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
     cursor: pointer;
 }
 
-.category-filter--active {
-    background: var(--accent);
-    color: white;
-    border-color: darkslategray;
+.button--pill {
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
 }
 
-.category-filter:not(.category-filter--active):hover {
-    background-color: whitesmoke;
+.button--primary {
+    background: var(--accent);
+    color: var(--surface);
+    border: 1px solid var(--accent-secondary);
+}
+
+.button--pill:not(.button--primary):hover {
+    background-color: var(--surface-secondary);
 }
 
 .events-grid {
@@ -77,11 +90,14 @@ main {
     align-items: stretch;
 }
 
-.event-card {
+.card {
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 1rem;
     border-radius: 0.75rem;
+}
+
+.event-card {
+    padding: 1rem;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
@@ -96,14 +112,23 @@ main {
     align-items: center;
 }
 
-.event-card__status {
-    color: var(--positive);
-    background-color: #dcfce7;
+.badge {
     padding: 0.25rem 0.5rem;
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
+    margin: 0;
+}
+
+.badge--positive {
+    color: var(--positive);
+    background-color: var(--positive-secondary);
+}
+
+.badge--negative {
+    color: var(--negative);
+    background-color: var(--negative-secondary);
 }
 
 .event-card__metadata {
@@ -173,9 +198,6 @@ main {
 .price-panels {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
@@ -229,9 +251,6 @@ main {
 }
 
 .social-analysis__card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
     padding: 1.5rem;
     height: 100%;
     box-sizing: border-box;
@@ -244,10 +263,21 @@ main {
     font-size: 1.25rem;
 }
 
-.social-analysis__card strong {
-    display: block;
+/*.social-analysis__card strong {*/
+/*    display: block;*/
+/*    margin: 0.5rem 0;*/
+/*    font-size: 2rem;*/
+/*    color: var(--positive);*/
+/*}*/
+
+.sentiment-result {
+    display: flex;
+    gap: 0.6rem;
     margin: 0.5rem 0;
     font-size: 2rem;
+}
+
+.sentiment-result--positive {
     color: var(--positive);
 }
 
@@ -264,9 +294,6 @@ main {
 }
 
 .market-sidebar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
     padding: 1rem;
     position: sticky;
     top: 1rem;
@@ -299,21 +326,10 @@ main {
 
 .market-sidebar > a {
     display: block;
-    margin-top: 1rem;
-    padding: 0.75rem;
-    background: var(--accent);
-    border: 1px solid darkslategray;
-    color: white;
     text-align: center;
-    text-decoration: none;
-    border-radius: 0.75rem;
-    font-weight: 600;
 }
 
 .discussion-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
     padding: 1rem;
     margin-bottom: 1rem;
 }
@@ -325,7 +341,6 @@ main {
     gap: 1rem;
 }
 
-.discussion-card__author,
 .discussion-card__sentiment,
 .discussion-card__body p,
 .discussion-card__metadata p {
@@ -335,24 +350,7 @@ main {
 .discussion-card__author {
     color: var(--text-primary);
     font-weight: 700;
-}
-
-.discussion-card__sentiment {
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.discussion-card__sentiment--positive {
-    color: var(--positive);
-    background-color: #dcfce7;
-}
-
-.discussion-card__sentiment--negative {
-    color: var(--negative);
-    background-color: #fee2e2;
+    margin: 0;
 }
 
 .discussion-card__body {
