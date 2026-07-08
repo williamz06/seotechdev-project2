@@ -21,6 +21,7 @@ class Market(db.Model):
     no_price = db.Column(db.Float)
     volume = db.Column(db.Float)
     observed_at = db.Column(db.String)
+    created_at = db.Column(db.String)
 
 with app.app_context():
     db.create_all()
@@ -38,6 +39,7 @@ def normalize_kalshi_market(m):
         "no_price": 1 - yes_price,
         "volume": float(m["volume_fp"]),
         "observed_at": m["updated_time"],
+        "created_at": m["created_time"],
     }
 
 def upsert_markets(markets):
