@@ -1,7 +1,7 @@
 import pandas as pd
 import ollama
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from model_schema import MarketPrediction, SYSTEM_PROMPT
+from prediction.model_schema import MarketPrediction, SYSTEM_PROMPT
 
 BLUESKY_POSTS = 'BLUESKY_POSTS_US_PREZ_2028_BASELINE.csv'
 MODEL_NAME = "qwen2.5:0.5b"
@@ -76,6 +76,33 @@ def main():
     predictive_count = final_df['is_predictive'].sum()
     print(f"\nDone. {predictive_count}/{len(final_df)} posts classified as predictive.")
     print(f"Output: classified_predictions.csv")
+
+    compute_implied_probability(final_df)
+
+
+def compute_implied_probability(df: pd.DataFrame) -> dict:
+    predictive = df[df['is_predictive'] == True]
+    dem   = (predictive['predicted_party'] == 'Democrat').sum()
+    rep   = (predictive['predicted_party'] == 'Republican').sum()
+    third = (predictive['predicted_party'] == 'Third Party').sum()
+    total = dem + rep + third
+
+    if total == 0:
+        print("\nNo predictive posts found — cannot compute implied probability.")
+        return {}
+
+    probs = {
+        'Democrat':    round(dem / total, 4),
+        'Republican':  round(rep / total, 4),
+        'Third Party': round(third / total, 4),
+    }
+
+    print("\n--- Bluesky Implied Probability ---")
+    print(f"  Democrat:    {probs['Democrat']:.1%}  ({dem} posts)")
+    print(f"  Republican:  {probs['Republican']:.1%}  ({rep} posts)")
+    print(f"  Third Party: {probs['Third Party']:.1%}  ({third} posts)")
+    print(f"  Total predictive posts: {total}")
+    return probs
 
 
 if __name__ == "__main__":
