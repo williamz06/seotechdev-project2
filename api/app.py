@@ -1,7 +1,24 @@
+<<<<<<< HEAD
 from flask import Flask, jsonify
 import praw
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
+app = Flask(__name__)
 
+# Reddit Auth
+reddit = praw.Reddit()
+=======
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route("/")
+def dashboard():
+    return render_template("dashboard.html")
+
+@app.route("/event/1")
+def event():
+    return render_template("event.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
+>>>>>>> origin

@@ -1,2 +1,9 @@
 .venv
 .env
+
+
+# https://github.com/nama1arpit/reddit-streaming-pipeline
+
+.DS_Store
+.gitignore
+*.csv
