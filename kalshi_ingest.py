@@ -23,6 +23,19 @@ class Market(db.Model):
     observed_at = db.Column(db.String)
     created_at = db.Column(db.String)
 
+    def __repr__(self):
+        return f"Market('{self.ticker}', '{self.title}', yes={self.yes_price})"
+
+class PriceHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ticker = db.Column(db.String, db.ForeignKey('market.ticker'))
+    yes_price = db.Column(db.Float)
+    volume = db.Column(db.Float)
+    observed_at = db.Column(db.String)
+
+    def __repr__(self):
+        return f"PriceHistory('{self.ticker}', yes={self.yes_price}, volume={self.volume}, observed_at={self.observed_at})"
+
 with app.app_context():
     db.create_all()
 
@@ -60,6 +73,13 @@ def upsert_markets(markets):
             else:
                 new_market = Market(**market)
                 db.session.add(new_market)
+            
+            db.session.add(PriceHistory(
+                ticker = market["ticker"],
+                yes_price = market["yes_price"],
+                volume = market["volume"],
+                observed_at = market["observed_at"],
+            ))
         db.session.commit()
 
 BASE_URL = "https://external-api.kalshi.com/trade-api/v2"
