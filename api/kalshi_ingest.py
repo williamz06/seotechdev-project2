@@ -253,7 +253,7 @@ def fetch_bluesky_for_event(config: dict, bluesky_client) -> list[dict]:
     since   = iso_z(kickoff - timedelta(minutes=config["window_pad_min"]))
     until   = iso_z(kickoff + timedelta(minutes=config["match_minutes"] + config["window_pad_min"]))
 
-    print(f"\n[Bluesky] {config['event_id']}  window: {since} → {until}")
+    print(f"\n[Bluesky] {config['event_id']}  window: {since} ----> {until}")
 
     plan = [(q, "macro_market")     for q in config["market_queries"]]
     plan += [(q, "resolution_clause") for q in config["resolution_queries"]]
