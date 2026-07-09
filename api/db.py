@@ -37,6 +37,7 @@ def init_tables():
             CREATE TABLE IF NOT EXISTS post_prediction (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 uri             TEXT REFERENCES bluesky_post(uri),
+                event_id        TEXT,
                 is_predictive   INTEGER,
                 predicted_party TEXT,
                 confidence      TEXT,
@@ -44,6 +45,11 @@ def init_tables():
                 classified_at   TEXT
             )
         """)
+        # backfill event_id column for DBs created before this change
+        try:
+            conn.execute("ALTER TABLE post_prediction ADD COLUMN event_id TEXT")
+        except Exception:
+            pass
         conn.commit()
 
 
@@ -67,18 +73,18 @@ def upsert_bluesky_posts(rows: list[dict], event_id: str):
         conn.commit()
 
 
-def insert_predictions(predictions: list[dict]):
-    """Append classification results;"""
+def insert_predictions(predictions: list[dict], event_id: str):
+    """Append classification results tagged with the Kalshi event_id."""
     now = datetime.now(timezone.utc).isoformat()
     with get_conn() as conn:
         conn.executemany(
             """
             INSERT INTO post_prediction
-                (uri, is_predictive, predicted_party, confidence, reason, classified_at)
+                (uri, event_id, is_predictive, predicted_party, confidence, reason, classified_at)
             VALUES
-                (:uri, :is_predictive, :predicted_party, :confidence, :reason, :classified_at)
+                (:uri, :event_id, :is_predictive, :predicted_party, :confidence, :reason, :classified_at)
             """,
-            [{**p, "classified_at": now} for p in predictions],
+            [{**p, "event_id": event_id, "classified_at": now} for p in predictions],
         )
         conn.commit()
 
