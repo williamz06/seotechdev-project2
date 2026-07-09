@@ -7,10 +7,15 @@ Env:   BLUESKY_USERNAME, BLUESKY_PASSWORD in a .env file
 import os
 import time
 from datetime import datetime, timedelta, timezone
- 
+
 import pandas as pd
 from atproto import Client
 from dotenv import load_dotenv
+
+try:
+    from api.db import init_tables, upsert_bluesky_posts
+except ImportError:
+    from db import init_tables, upsert_bluesky_posts
 
 # Standardize BlueSky Errors
 try:
@@ -177,13 +182,14 @@ def main():
         return
     
     df = pd.DataFrame(rows)
-    df.to_csv(OUTPUT_CSV, index = False)
-
-
- 
+    df.to_csv(OUTPUT_CSV, index=False)
     print(f"\nWrote {len(df)} unique posts to {OUTPUT_CSV}")
     print(f"Columns: {list(df.columns)}")
     print(f"Sample: @{rows[0]['author_handle']}: {rows[0]['text'][:80]}")
+
+    init_tables()
+    upsert_bluesky_posts(rows, EVENT_ID)
+    print(f"Saved {len(rows)} posts to markets.db (bluesky_post table)")
  
  
 if __name__ == "__main__":

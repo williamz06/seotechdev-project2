@@ -3,6 +3,13 @@ import ollama
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from prediction.model_schema import MarketPrediction, SYSTEM_PROMPT
 
+try:
+    from api.db import init_tables, insert_predictions
+except ImportError:
+    import sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from api.db import init_tables, insert_predictions
+
 BLUESKY_POSTS = 'BLUESKY_POSTS_US_PREZ_2028_BASELINE.csv'
 MODEL_NAME = "qwen2.5:0.5b"
 MAX_WORKERS = 8
@@ -76,6 +83,10 @@ def main():
     predictive_count = final_df['is_predictive'].sum()
     print(f"\nDone. {predictive_count}/{len(final_df)} posts classified as predictive.")
     print(f"Output: classified_predictions.csv")
+
+    init_tables()
+    insert_predictions(results)
+    print(f"Saved {len(results)} predictions to markets.db (post_prediction table)")
 
     compute_implied_probability(final_df)
 
