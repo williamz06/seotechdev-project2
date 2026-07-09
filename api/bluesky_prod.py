@@ -2,6 +2,9 @@
 Fetch Bluesky posts for a single match
 
 Env:   BLUESKY_USERNAME, BLUESKY_PASSWORD in a .env file
+
+THESE PARAMETERS ARE FOR TESTING CLASSFICIATION ON 2028 Presidential Eleciton Party Winner
+USE KALSHI_INGEST.PY where it will invoke this BlueSky API consequently
 """
 
 import os
@@ -27,8 +30,6 @@ except Exception:
 
 EVENT_ID = "US_PREZ_2028_BASELINE"
 
-# Kickoff time stamp 
-# Bounded Window for a given game to filter pre and post match
 KICKOFF = datetime(2026, 7, 6, 19, 0, tzinfo=timezone.utc)
 MATCH_MINUTES =  120
 WINDOW_PAD_MIN = 30 # buffer
