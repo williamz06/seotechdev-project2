@@ -7,3 +7,7 @@
 .DS_Store
 .gitignore
 *.csv
+.env
+*.db
+__pycache__/
+.vscode/
