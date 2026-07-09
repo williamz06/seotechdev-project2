@@ -48,6 +48,14 @@ class PriceHistory(db.Model):
 
     def __repr__(self):
         return f"PriceHistory('{self.ticker}', yes={self.yes_price}, volume={self.volume}, observed_at={self.observed_at})"
+    
+class Event(db.Model):
+    event_ticker = db.Column(db.String, primary_key=True)
+    title = db.Column(db.String)
+    sub_title = db.Column(db.String)
+
+    def __repr__(self):
+        return f"Event('{self.event_ticker}', '{self.title}')"
 
 with app.app_context():
     db.create_all()
@@ -112,6 +120,26 @@ def get_markets(series_ticker=None, event_ticker=None, status="open", limit=100)
     response = requests.get(f"{BASE_URL}/markets", params=params)
     response.raise_for_status()
     return response.json()["markets"]
+
+def get_event(event_ticker):
+    response = requests.get(f"{BASE_URL}/events", params = {"event_ticker": event_ticker})
+    response.raise_for_status()
+    events = response.json()["events"]
+    return events[0] if events else None
+
+def upsert_event(raw_event):
+    with app.app_context():
+        existing = Event.query.filter_by(event_ticker=raw_event["event_ticker"]).first()
+        if existing:
+            existing.title = raw_event["title"]
+            existing.sub_title = raw_event.get("sub_title")
+        else:
+            db.session.add(Event(
+                event_ticker=raw_event["event_ticker"],
+                title=raw_event["title"],
+                sub_title=raw_event.get("sub_title"),
+            ))
+        db.session.commit()
 
 # User can add a URL
 def parse_kalshi_url(url: str) -> tuple[str, str]:
@@ -345,6 +373,12 @@ if __name__ == "__main__":
         print(f"{len(all_markets)} eligible markets found")
         all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
         upsert_markets(all_markets)
+        unique_event_tickers = set(m["event_ticker"] for m in all_markets)
+        for event_ticker in unique_event_tickers:
+            raw_event = get_event(event_ticker)
+            if raw_event:
+                upsert_event(raw_event)
+            time.sleep(0.3)
 
         sorted_markets = sorted(all_markets, key=lambda m: m["event_ticker"])
         for event_ticker, group in groupby(sorted_markets, key=lambda m: m["event_ticker"]):
