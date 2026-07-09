@@ -97,7 +97,7 @@ def upsert_markets(markets):
 
 BASE_URL = "https://external-api.kalshi.com/trade-api/v2"
 
-def get_series_list(tags=None):
+def get_series_list(tags = None):
     params = {"tags": tags} if tags else {}
     response = requests.get(f"{BASE_URL}/series", params=params)
     response.raise_for_status()
