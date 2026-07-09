@@ -1,9 +1,11 @@
 import re
 import os
 import time
+import argparse
 import requests
 from datetime import datetime, timedelta, timezone
 from itertools import groupby
+from urllib.parse import urlparse
 
 import pandas as pd
 from flask import Flask
@@ -101,11 +103,32 @@ def get_series_list(tags=None):
     response.raise_for_status()
     return response.json()["series"]
 
-def get_markets(series_ticker, status="open", limit=100):
-    params = {"status": status, "limit": limit, "series_ticker": series_ticker}
+def get_markets(series_ticker=None, event_ticker=None, status="open", limit=100):
+    params = {"status": status, "limit": limit}
+    if series_ticker:
+        params["series_ticker"] = series_ticker
+    if event_ticker:
+        params["event_ticker"] = event_ticker
     response = requests.get(f"{BASE_URL}/markets", params=params)
     response.raise_for_status()
     return response.json()["markets"]
+
+# User can add a URL
+def parse_kalshi_url(url: str) -> tuple[str, str]:
+    """
+    Extract (series_ticker, event_ticker) from a Kalshi market URL.
+    e.g. https://kalshi.com/markets/kxpresparty/party-winning-presidency/kxpresparty-2028
+    gets ('KXPRESPARTY', 'KXPRESPARTY-2028')
+
+    - It shows in the event-ticker at the end
+    """
+    path = urlparse(url).path
+    parts = [p for p in path.split('/') if p]
+    # expected: ['markets', '<series>', '<slug>', '<event>']
+
+    if len(parts) < 4 or parts[0] != 'markets':
+        raise ValueError(f"Unrecognized Kalshi URL format: {url}")
+    return parts[1].upper(), parts[3].upper()
 
 # Contract eligibility filter
 # Binary contracts
@@ -269,7 +292,7 @@ def fetch_bluesky_for_event(config: dict, bluesky_client) -> list[dict]:
         time.sleep(0.3)
 
     rows = list(rows_by_uri.values())
-    print(f"[Bluesky] {len(rows)} unique posts → {config['output_csv']}")
+    print(f"[Bluesky] {len(rows)} unique posts -> {config['output_csv']}")
     return rows
 
 # Entry point
@@ -277,33 +300,56 @@ def fetch_bluesky_for_event(config: dict, bluesky_client) -> list[dict]:
 if __name__ == "__main__":
     load_dotenv()
 
-    # Get all US Elections related 
-    us_series = get_series_list(tags="US Elections")
-    all_markets = []
-    for series in us_series:
-        markets = get_markets(series_ticker=series["ticker"])
-        markets = [
-            m for m in markets
-            if m.get("market_type") == "binary" and is_eligible_contract(m)
-        ]
-        all_markets.extend(markets)
-        time.sleep(0.3)
+    # CLI url optional
+    parser = argparse.ArgumentParser(description="Kalshi ingest + Bluesky fetch")
+    parser.add_argument(
+        "--url",
+        help="Kalshi market URL for a specific contract, e.g. https://kalshi.com/markets/kxpresparty/party-winning-presidency/kxpresparty-2028",
+    )
+    args = parser.parse_args()
 
-    print(f"{len(all_markets)} eligible markets found")
-
-    all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
-    upsert_markets(all_markets)
-
-    # Bluesky: one fetch per unique event_ticker
-    # Login
     bluesky_client = Client()
     bluesky_client.login(os.getenv("BLUESKY_USERNAME"), os.getenv("BLUESKY_PASSWORD"))
 
-    # Get Market
-    sorted_markets = sorted(all_markets, key=lambda m: m["event_ticker"])
-    for event_ticker, group in groupby(sorted_markets, key=lambda m: m["event_ticker"]):
-        event_markets = list(group)
-        config = build_bluesky_config(event_ticker, event_markets)
-        rows = fetch_bluesky_for_event(config, bluesky_client)
-        if rows:
-            pd.DataFrame(rows).to_csv(config["output_csv"], index=False)
+    if args.url:
+        # Single-contract flow
+        series_ticker, event_ticker = parse_kalshi_url(args.url)
+        print(f"Fetching contract: series={series_ticker}  event={event_ticker}")
+
+        markets = get_markets(event_ticker=event_ticker)
+        markets = [m for m in markets if m.get("market_type") == "binary" and is_eligible_contract(m)]
+
+        if not markets:
+            print("No eligible markets found for this contract.")
+        else:
+            upsert_markets(markets)
+            config = build_bluesky_config(event_ticker, markets)
+            rows = fetch_bluesky_for_event(config, bluesky_client)
+            if rows:
+                pd.DataFrame(rows).to_csv(config["output_csv"], index=False)
+
+    # Then fetch all related US elections
+    else:
+        # Bulk flow — all US Elections series
+        us_series = get_series_list(tags="US Elections")
+        all_markets = []
+        for series in us_series:
+            markets = get_markets(series_ticker=series["ticker"])
+            markets = [
+                m for m in markets
+                if m.get("market_type") == "binary" and is_eligible_contract(m)
+            ]
+            all_markets.extend(markets)
+            time.sleep(0.3)
+
+        print(f"{len(all_markets)} eligible markets found")
+        all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
+        upsert_markets(all_markets)
+
+        sorted_markets = sorted(all_markets, key=lambda m: m["event_ticker"])
+        for event_ticker, group in groupby(sorted_markets, key=lambda m: m["event_ticker"]):
+            event_markets = list(group)
+            config = build_bluesky_config(event_ticker, event_markets)
+            rows = fetch_bluesky_for_event(config, bluesky_client)
+            if rows:
+                pd.DataFrame(rows).to_csv(config["output_csv"], index=False)
