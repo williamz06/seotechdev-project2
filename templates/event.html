@@ -2,33 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Market event</title>
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body>
 <main>
     <header>
         <a href="/">← Back to events</a>
-        <h1>Will France win the 2026 Men’s World Cup?</h1>
+        <h1 id="event-title">Loading event...</h1>
     </header>
     <div class="detail-layout">
         <div class="detail-content">
+            <section class="contract-switcher">
+                <div id="contract-buttons" class="contract-buttons"></div>
+            </section>
             <div class="analysis-grid">
                 <section>
                     <div class="price-panels card">
                         <h2>Market-implied odds</h2>
                         <div class="price-panel">
                             <p>Yes</p>
-                            <strong>42%</strong>
+                            <strong id="yes-price">--</strong>
                         </div>
 
                         <div class="price-panel">
                             <p>No</p>
-                            <strong>58%</strong>
+                            <strong id="no-price">--</strong>
                         </div>
                         <div class="market-bar">
-                            <div class="market-bar__yes" style="width: 42%;"></div>
-                            <div class="market-bar__no" style="width: 58%;"></div>
+                            <div id="yes-bar" class="market-bar__yes"></div>
+                            <div id="no-bar" class="market-bar__no"></div>
                         </div>
                     </div>
                 </section>
@@ -140,28 +143,29 @@
             <dl>
                 <div>
                     <dt>Platform</dt>
-                    <dd>Kalshi</dd>
+                    <dd id="event-platform">Loading...</dd>
                 </div>
                 <div>
                     <dt>Status</dt>
-                    <dd>Open</dd>
+                    <dd id="event-status">Loading...</dd>
                 </div>
                 <div>
-                    <dt>Volume</dt>
-                    <dd>$1.2M</dd>
+                    <dt>Contract volume</dt>
+                    <dd id="event-volume">Loading...</dd>
                 </div>
                 <div>
-                    <dt>Created</dt>
-                    <dd>July 1, 2026</dd>
+                    <dt>Closes</dt>
+                    <dd id="contract-close">Loading...</dd>
                 </div>
                 <div>
                     <dt>Last updated</dt>
-                    <dd>2 minutes ago</dd>
+                    <dd id="event-updated">Loading...</dd>
                 </div>
             </dl>
             <a href="#" class="button button--primary">View on Kalshi ↗</a>
         </aside>
     </div>
 </main>
+<script src="../static/js/event.js"></script>
 </body>
 </html>

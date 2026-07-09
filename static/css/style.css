@@ -44,6 +44,10 @@ header > a:hover {
     text-decoration: underline;
 }
 
+header h1 {
+    margin: 0 0 1rem;
+}
+
 main {
     max-width: 1200px;
     margin: 0 auto;
@@ -141,7 +145,35 @@ main {
 .event-card__title {
     margin: 0;
     font-size: 1.4rem;
-    padding-bottom: 0.75rem;
+}
+
+.contract-item {
+    padding-bottom: 0.6rem;
+}
+
+.contract-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+}
+
+.contract-bar {
+    height: 0.45rem;
+    background: var(--surface-secondary);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.contract-bar__fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+}
+
+.more-contracts {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 .event-card__comparison {
@@ -247,7 +279,47 @@ main {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
+}
+
+.contract-switcher {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-top: 1rem;
+    padding: 0.75rem 0;
+    background: var(--page-background);
+    border-bottom: 1px solid transparent;
+}
+
+.contract-switcher--stuck {
+    border-bottom-color: var(--border);
+}
+
+.contract-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.contract-button {
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-primary);
+    font: inherit;
+    cursor: pointer;
+}
+
+.contract-button--selected {
+    border-color: var(--accent-secondary);
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.contract-button:hover:not(.contract-button--selected) {
+    background: var(--surface-secondary);
 }
 
 .social-analysis__card {
@@ -262,13 +334,6 @@ main {
     margin: 0 0 1rem;
     font-size: 1.25rem;
 }
-
-/*.social-analysis__card strong {*/
-/*    display: block;*/
-/*    margin: 0.5rem 0;*/
-/*    font-size: 2rem;*/
-/*    color: var(--positive);*/
-/*}*/
 
 .sentiment-result {
     display: flex;
