@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-from flask import Flask, jsonify
-import praw
-
-app = Flask(__name__)
-
-# Reddit Auth
-reddit = praw.Reddit()
-=======
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -21,4 +12,3 @@ def event():
 
 if __name__ == "__main__":
     app.run(debug=True)
->>>>>>> origin
