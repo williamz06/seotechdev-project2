@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from api.kalshi_ingest import app, Market
-=======
 from kalshi_ingest import app, Market, PriceHistory
->>>>>>> kalshi-api
 
 with app.app_context():
     print("Markets in database:")

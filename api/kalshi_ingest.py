@@ -1,9 +1,20 @@
-import requests
-import json
+import re
+import os
 import time
+import requests
+from datetime import datetime, timedelta, timezone
+from itertools import groupby
+
+import pandas as pd
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import os
+from dotenv import load_dotenv
+from atproto import Client
+
+try:
+    from api.bluesky_prod import search_all_pages, flatten_post, iso_z
+except ImportError:
+    from bluesky_prod import search_all_pages, flatten_post, iso_z
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +28,7 @@ class Market(db.Model):
     candidate = db.Column(db.String)
     status = db.Column(db.String)
     close_time = db.Column(db.String)
-    yes_price = db.Column(db.Float) 
+    yes_price = db.Column(db.Float)
     no_price = db.Column(db.Float)
     volume = db.Column(db.Float)
     observed_at = db.Column(db.String)
@@ -73,12 +84,12 @@ def upsert_markets(markets):
             else:
                 new_market = Market(**market)
                 db.session.add(new_market)
-            
+
             db.session.add(PriceHistory(
-                ticker = market["ticker"],
-                yes_price = market["yes_price"],
-                volume = market["volume"],
-                observed_at = market["observed_at"],
+                ticker=market["ticker"],
+                yes_price=market["yes_price"],
+                volume=market["volume"],
+                observed_at=market["observed_at"],
             ))
         db.session.commit()
 
@@ -96,14 +107,203 @@ def get_markets(series_ticker, status="open", limit=100):
     response.raise_for_status()
     return response.json()["markets"]
 
+# Contract eligibility filter
+# Binary contracts
+# exclude over,under, numeric, non-winner or deterministic questions
+
+_OVER_UNDER_RE = re.compile(
+    r'\b(over|under|more than|fewer than|less than|at least|at most)\b.{0,30}\d',
+    re.IGNORECASE
+)
+_NUMERIC_THRESHOLD_RE = re.compile(
+    r'\d+\s*(seats|electoral votes|percent|%|delegates)',
+    re.IGNORECASE
+)
+_WINNER_RE = re.compile(
+    r'\b(win|wins|winner|elected|president|senator|governor|nominee|candidate)\b',
+    re.IGNORECASE
+)
+
+def is_eligible_contract(raw_market: dict) -> bool:
+    """
+    True for deterministic yes/no US winner-prediction binary contracts.
+    Excludes: over/under thresholds, numeric seat/vote counts, non-winner questions.
+    """
+    title = (raw_market.get("title") or "")
+    if _OVER_UNDER_RE.search(title):
+        return False
+    if _NUMERIC_THRESHOLD_RE.search(title):
+        return False
+    if not _WINNER_RE.search(title):
+        return False
+    return True
+
+# Party Look up
+
+_CANDIDATE_PARTY = {
+    "harris": "democrat",   "newsom": "democrat",   "shapiro": "democrat",
+    "buttigieg": "democrat","warren": "democrat",   "whitmer": "democrat",
+    "pritzker": "democrat", "beshear": "democrat",  "biden": "democrat",
+    "trump": "republican",  "vance": "republican",  "desantis": "republican",
+    "haley": "republican",  "rubio": "republican",  "scott": "republican",
+    "pompeo": "republican", "cotton": "republican", "youngkin": "republican",
+    "rfk": "third_party",   "kennedy": "third_party","west": "third_party",
+    "stein": "third_party",
+}
+
+_PARTY_BASE_QUERIES = {
+    "democrat":    ["Democrats", "Democrat", "DNC", "Blue wave"],
+    "republican":  ["Republicans", "Republican", "GOP", "Red wave", "MAGA"],
+    "third_party": ["Third party", "Libertarian", "Green party", "RFK Jr"],
+}
+
+def _candidate_party(name: str) -> str | None:
+    for token in name.lower().split():
+        if token in _CANDIDATE_PARTY:
+            return _CANDIDATE_PARTY[token]
+    return None
+
+# Bluesky config builder
+
+def build_bluesky_config(event_ticker: str, raw_markets: list[dict], window_hours: int = 6) -> dict:
+    """
+    Derive Bluesky search parameters from a group of raw Kalshi markets
+    sharing the same event_ticker.
+
+    Targeting deterministic US election contracts
+
+    window_hours: how far back (and forward) from now to search for posts.
+    """
+    representative = max(raw_markets, key=lambda m: float(m.get("volume_fp") or 0))
+    title = representative.get("title") or ""
+    title_lower = title.lower()
+
+    event_id = re.sub(r'[^A-Z0-9]', '_', event_ticker.upper()).strip('_')
+
+    is_presidential = any(k in title_lower for k in ["president", "presidential", "white house"])
+    is_senate       = "senate" in title_lower
+    is_governor     = any(k in title_lower for k in ["governor", "gubernatorial"])
+
+    # Gather candidate names across all markets in this event
+    candidates = [m.get("yes_sub_title") for m in raw_markets if m.get("yes_sub_title")]
+
+    options_queries: dict[str, list[str]] = {"democrat": [], "republican": [], "third_party": []}
+    unknown_candidates = []
+
+    for name in candidates:
+        party = _candidate_party(name)
+        if party:
+            if name not in options_queries[party]:
+                options_queries[party].append(name)
+        else:
+            unknown_candidates.append(name)
+
+    # Append base party terms (deduped)
+    for party, base_terms in _PARTY_BASE_QUERIES.items():
+        seen = set(options_queries[party])
+        for t in base_terms:
+            if t not in seen:
+                options_queries[party].append(t)
+                seen.add(t)
+
+    # Market-level queries
+    if is_presidential:
+        market_queries = [
+            "2028 election", "2028 presidential", "next president 2028",
+            "polymarket 2028", "election contract",
+        ] + unknown_candidates
+    elif is_senate:
+        state = (re.search(r'\b([A-Z]{2})\b', event_ticker) or re.search(r'([A-Z]{2})', event_ticker))
+        state = state.group(1) if state else ""
+        market_queries = [
+            f"{state} senate", f"{state} senate race", "senate election",
+        ] + unknown_candidates
+    elif is_governor:
+        state = (re.search(r'\b([A-Z]{2})\b', event_ticker) or re.search(r'([A-Z]{2})', event_ticker))
+        state = state.group(1) if state else ""
+        market_queries = [
+            f"{state} governor", f"{state} governor race", "gubernatorial",
+        ] + unknown_candidates
+    else:
+        market_queries = ([title[:60]] if title else []) + unknown_candidates
+
+    resolution_queries = [
+        "election resolution", "associated press call",
+        "fox news call", "nbc call", "election results",
+    ]
+
+    kickoff = datetime.now(timezone.utc)
+
+    return {
+        "event_id":          event_id,
+        "kickoff":           kickoff,
+        "match_minutes":     0,
+        "window_pad_min":    window_hours * 60,
+        "market_queries":    [q for q in market_queries if q],
+        "options_queries":   {k: v for k, v in options_queries.items() if v},
+        "resolution_queries": resolution_queries,
+        "output_csv":        f"BLUESKY_POSTS_{event_id}.csv",
+    }
+
+# Bluesky fetcher
+
+def fetch_bluesky_for_event(config: dict, bluesky_client) -> list[dict]:
+    """Run Bluesky keyword search for one Kalshi event and return post rows."""
+    kickoff = config["kickoff"]
+    since   = iso_z(kickoff - timedelta(minutes=config["window_pad_min"]))
+    until   = iso_z(kickoff + timedelta(minutes=config["match_minutes"] + config["window_pad_min"]))
+
+    print(f"\n[Bluesky] {config['event_id']}  window: {since} → {until}")
+
+    plan = [(q, "macro_market")     for q in config["market_queries"]]
+    plan += [(q, "resolution_clause") for q in config["resolution_queries"]]
+    for category, queries in config["options_queries"].items():
+        plan += [(q, f"party_{category}") for q in queries]
+
+    rows_by_uri: dict[str, dict] = {}
+    for query, team in plan:
+        posts = search_all_pages(bluesky_client, query, since, until, 5000)
+        for p in posts:
+            row = flatten_post(p, query, team)
+            rows_by_uri.setdefault(row["uri"], row)
+        time.sleep(0.3)
+
+    rows = list(rows_by_uri.values())
+    print(f"[Bluesky] {len(rows)} unique posts → {config['output_csv']}")
+    return rows
+
+# Entry point
+
 if __name__ == "__main__":
+    load_dotenv()
+
+    # Get all US Elections related 
     us_series = get_series_list(tags="US Elections")
     all_markets = []
     for series in us_series:
         markets = get_markets(series_ticker=series["ticker"])
-        markets = [m for m in markets if m.get("market_type") == "binary"]
+        markets = [
+            m for m in markets
+            if m.get("market_type") == "binary" and is_eligible_contract(m)
+        ]
         all_markets.extend(markets)
         time.sleep(0.3)
-    print(len(all_markets))
+
+    print(f"{len(all_markets)} eligible markets found")
+
     all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
     upsert_markets(all_markets)
+
+    # Bluesky: one fetch per unique event_ticker
+    # Login
+    bluesky_client = Client()
+    bluesky_client.login(os.getenv("BLUESKY_USERNAME"), os.getenv("BLUESKY_PASSWORD"))
+
+    # Get Market
+    sorted_markets = sorted(all_markets, key=lambda m: m["event_ticker"])
+    for event_ticker, group in groupby(sorted_markets, key=lambda m: m["event_ticker"]):
+        event_markets = list(group)
+        config = build_bluesky_config(event_ticker, event_markets)
+        rows = fetch_bluesky_for_event(config, bluesky_client)
+        if rows:
+            pd.DataFrame(rows).to_csv(config["output_csv"], index=False)
