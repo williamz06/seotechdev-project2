@@ -5,9 +5,6 @@ praw
 python-dotenv
 pandas
 requests
-
-
-
 atproto
 ollama
 flask-sqlalchemy
