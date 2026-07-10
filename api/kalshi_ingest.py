@@ -20,9 +20,11 @@ except ImportError:
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'markets.db')
+_db_url = os.environ.get('DATABASE_URL') or ('sqlite:///' + os.path.join(BASE_DIR, 'markets.db'))
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
 db = SQLAlchemy(app)
-
 class Market(db.Model):
     ticker = db.Column(db.String, primary_key=True)
     event_ticker = db.Column(db.String)

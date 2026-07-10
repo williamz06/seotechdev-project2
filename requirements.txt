@@ -1,4 +1,6 @@
 flask
+gunicorn
+psycopg2-binary
 praw
 python-dotenv
 pandas
