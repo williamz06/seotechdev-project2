@@ -50,6 +50,7 @@ def get_contract(row):
         "volume": row["volume"],
         "observed_at": row["observed_at"],
         "created_at": row["created_at"],
+        "url": row["url"],
     }
 
 

@@ -5,6 +5,7 @@ const eventStatus = document.getElementById("event-status");
 const eventVolume = document.getElementById("event-volume");
 const eventUpdated = document.getElementById("event-updated");
 const contractClose = document.getElementById("contract-close");
+const kalshiLink = document.getElementById("kalshi-link");
 const contractButtons = document.getElementById("contract-buttons");
 const contractSwitcher = document.querySelector(".contract-switcher");
 const yesPrice = document.getElementById("yes-price");
@@ -80,6 +81,7 @@ function selectContract(contract, button) {
     eventVolume.textContent = formatVolume(contract.volume);
     contractClose.textContent = formatDate(contract.close_time);
     eventUpdated.textContent = formatDate(contract.observed_at);
+    kalshiLink.href = contract.url;
 
     for (const contractButton of contractButtons.children) {
         contractButton.classList.remove("contract-button--selected");
