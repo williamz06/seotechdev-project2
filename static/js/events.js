@@ -1,5 +1,5 @@
 const eventsElement = document.getElementById("events");
-const barColors = ["#2563eb", "#16a34a", "#9333ea"];
+const barColors = ["#E9141D", "#2563eb"];
 
 function formatVolume(volume) {
     if (volume >= 1000000) {
