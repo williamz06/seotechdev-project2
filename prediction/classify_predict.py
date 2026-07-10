@@ -23,33 +23,36 @@ MODEL_NAME = "qwen2.5:0.5b"
 MAX_WORKERS = 8
 
 
+# Running locally so we touch on .csv
+# TODO: read from Database
 def extract_event_id(filepath: str) -> str:
-    """BLUESKY_POSTS_KXPRESPARTY_2028.csv → KXPRESPARTY_2028"""
+    """BLUESKY_POSTS_KXPRESPARTY_2028.csv to KXPRESPARTY_2028"""
+
     name = os.path.basename(filepath)
     name = re.sub(r'\.csv$', '', name, flags=re.IGNORECASE)
     name = re.sub(r'^BLUESKY_POSTS_', '', name)
     return name
 
-
-def classify_post(post_text: str) -> MarketPrediction:
+def classify_post(post_text: str, event_id: str = "") -> MarketPrediction:
+    context = f"Contract: {event_id}\n" if event_id else ""
     response = ollama.chat(
-        model=MODEL_NAME,
+        model = MODEL_NAME,
         messages=[
             {'role': 'system', 'content': SYSTEM_PROMPT},
-            {'role': 'user', 'content': f"Classify this post: '{post_text}'"}
+            {'role': 'user', 'content': f"{context}Post: '{post_text}'"}
         ],
-        format=MarketPrediction.model_json_schema(),
-        options={'temperature': 0}
+        format  = MarketPrediction.model_json_schema(),
+        options = {'temperature': 0}
     )
     return MarketPrediction.model_validate_json(response['message']['content'])
 
 
-def process_row(row):
+def process_row(row, event_id: str = "") -> dict:
     langs = str(row.get('langs', 'en') or 'en')
     if 'en' not in langs:
         return {"uri": row['uri'], "is_predictive": False, "predicted_party": "None", "confidence": "None", "reason": "non-english"}
     try:
-        result = classify_post(row['text'])
+        result = classify_post(row['text'], event_id)
         return {
             "uri":             row['uri'],
             "is_predictive":   result.is_predictive,
@@ -64,7 +67,7 @@ def process_row(row):
 
 def run(filepath: str):
     event_id = extract_event_id(filepath)
-    print(f"\n=== {event_id} ({os.path.basename(filepath)}) ===")
+    print(f"\n-- {event_id} ({os.path.basename(filepath)})")
 
     df = pd.read_csv(filepath)
     rows = df.to_dict('records')
@@ -74,7 +77,7 @@ def run(filepath: str):
     completed = 0
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {executor.submit(process_row, row): row for row in rows}
+        futures = {executor.submit(process_row, row, event_id): row for row in rows}
         for future in as_completed(futures):
             result = future.result()
             results.append(result)
@@ -143,7 +146,9 @@ if __name__ == "__main__":
     init_tables()
 
     if args.all:
+        # Look for appropriate posts
         files = sorted(glob.glob(os.path.join(BLUESKY_OUTPUT_DIR, "BLUESKY_POSTS_*.csv")))
+
         if not files:
             print(f"No CSV files found in {BLUESKY_OUTPUT_DIR}")
         for f in files:
