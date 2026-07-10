@@ -1,3 +1,4 @@
+const kalshiLink = document.getElementById("kalshi-link");
 const eventTitle = document.getElementById("event-title");
 const eventTicker = window.location.pathname.split("/").pop();
 const eventPlatform = document.getElementById("event-platform");
@@ -5,7 +6,6 @@ const eventStatus = document.getElementById("event-status");
 const eventVolume = document.getElementById("event-volume");
 const eventUpdated = document.getElementById("event-updated");
 const contractClose = document.getElementById("contract-close");
-const kalshiLink = document.getElementById("kalshi-link");
 const contractButtons = document.getElementById("contract-buttons");
 const contractSwitcher = document.querySelector(".contract-switcher");
 const yesPrice = document.getElementById("yes-price");
@@ -226,6 +226,7 @@ function loadEvent() {
         })
         .then(function (event) {
             eventTitle.textContent = event.display_name;
+            kalshiLink.href = `https://kalshi.com/markets/${eventTicker.toLowerCase()}`;
             document.title = event.display_name;
             eventPlatform.textContent = event.platform;
             showContracts(event.contracts);

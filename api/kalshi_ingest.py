@@ -20,9 +20,11 @@ except ImportError:
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'markets.db')
+_db_url = os.environ.get('DATABASE_URL') or ('sqlite:///' + os.path.join(BASE_DIR, 'markets.db'))
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = _db_url
 db = SQLAlchemy(app)
-
 class Market(db.Model):
     ticker = db.Column(db.String, primary_key=True)
     event_ticker = db.Column(db.String)
@@ -350,7 +352,7 @@ if __name__ == "__main__":
             time.sleep(0.3)
 
         print(f"{len(all_markets)} eligible markets found")
-        all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
+        all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:10]
         upsert_markets(all_markets)
 
         sorted_markets = sorted(all_markets, key=lambda m: m["event_ticker"])

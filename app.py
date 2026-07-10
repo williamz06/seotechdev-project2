@@ -8,8 +8,17 @@ app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "api", "markets.db")
+DATABASE_URL = os.environ.get("DATABASE_URL")
+USE_POSTGRES = bool(DATABASE_URL) 
+PLACEHOLDER = "%s" if USE_POSTGRES else "?"
+if USE_POSTGRES:
+    import psycopg2
+    import psycopg2.extras
+
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 SOCIAL_FILES = {
-    "KXPRESPARTY-2028": "classified_US_PREZ_2028_BASELINE.csv",
+    "KXPRESPARTY-2028": "prediction/output/classified_KXPRESPARTY_2028_SAMPLE.csv",
     "CONTROLH-2026": "prediction/output/classified_CONTROLH_2026.csv",
     "CONTROLS-2026": "prediction/output/classified_CONTROLS_2026.csv",
     "KXCAGOVPRIMARY1ST-26JUN02-1ST": "prediction/output/classified_KXCAGOVPRIMARY1ST_26JUN02_1ST.csv",
@@ -25,6 +34,9 @@ EVENT_NAMES = {
     "CONTROLH-2026": "2026 U.S. House Control",
     "CONTROLS-2026": "2026 U.S. Senate Control",
     "KXCAGOVPRIMARY1ST-26JUN02-1ST": "2026 California Governor Primary",
+    "KXPRESNOMD-28": "2028 Democratic Presidential Nominee",
+    "KXMAYORLA-26": "2026 LA Mayoral Race",
+    "KXGOVCA-26": "2026 California Governor Race",
 }
 
 PARTY_LABEL_TO_SUPPORT = {
@@ -33,10 +45,11 @@ PARTY_LABEL_TO_SUPPORT = {
 }
 
 def get_db():
+    if USE_POSTGRES: 
+        return psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
-
 
 def get_contract(row):
     return {
@@ -151,7 +164,9 @@ def event(event_ticker):
 @app.get("/api/events")
 def events_api():
     with get_db() as conn:
-        rows = conn.execute("SELECT * FROM market ORDER BY event_ticker").fetchall()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM market ORDER BY event_ticker")
+        rows = cur.fetchall()
 
     grouped = {}
     for row in rows:
@@ -170,11 +185,12 @@ def events_api():
 @app.get("/api/events/<event_ticker>")
 def event_api(event_ticker):
     with get_db() as conn:
-        rows = conn.execute(
-            "SELECT * FROM market WHERE event_ticker = ? ORDER BY volume DESC",
-            (event_ticker,),
-        ).fetchall()
-
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT * FROM market WHERE event_ticker = {PLACEHOLDER} ORDER BY volume DESC",
+            (event_ticker,)
+        )
+        rows = cur.fetchall()
     if not rows:
         abort(404, description="Kalshi event not found")
 
@@ -191,11 +207,12 @@ def event_social_api(event_ticker):
     posts = social_data["posts"]
 
     with get_db() as conn:
-        contracts = conn.execute(
-            "SELECT ticker, candidate FROM market WHERE event_ticker = ?",
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT ticker, candidate FROM market WHERE event_ticker = {PLACEHOLDER}",
             (event_ticker,),
-        ).fetchall()
-
+        )
+        contracts = cur.fetchall()
     predictions = {}
     for post in posts:
         party = post["supported_party"]
