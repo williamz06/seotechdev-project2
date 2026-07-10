@@ -1,5 +1,5 @@
 const eventsElement = document.getElementById("events");
-const barColors = ["#2563eb", "#16a34a", "#9333ea", "#ea580c"];
+const barColors = ["#2563eb", "#16a34a", "#9333ea"];
 
 function formatVolume(volume) {
     if (volume >= 1000000) {
@@ -22,13 +22,14 @@ function showEvents(events) {
         card.className = "event-card card";
 
         let contractList = "";
-        for (let i = 0; i < event.contracts.slice(0, 3).length; i++) {
-            const contract = event.contracts[i];
+        const contracts = event.contracts.slice(0, 3);
+        for (let i = 0; i < contracts.length; i++) {
+            const contract = contracts[i];
             const name = contract.outcome_label || contract.title;
             const price = Math.round(contract.yes_price * 100);
             contractList += "<div class='contract-item'>" +
                 "<div class='contract-row'><span>" + name + "</span><strong>" + price + "%</strong></div>" +
-                "<div class='contract-bar'><div class='contract-bar__fill' style='width: " + price + "% ; background: " + barColors[i] + "'></div></div>" +
+                "<div class='contract-bar'><div class='contract-bar__fill' style='width: " + price + "%; background: " + barColors[i] + "'></div></div>" +
                 "</div>";
         }
 
