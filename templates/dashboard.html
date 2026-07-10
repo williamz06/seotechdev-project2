@@ -2,72 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>OpenPredict</title>
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body>
   <main>
+    <a href="/" class="site-name">OpenPredict</a>
     <h1>Compare market odds with public sentiment</h1>
     <p>
       Explore how prediction-market probabilities compare with discussions across social media.
     </p>
-    <div class="category-filters">
-      <button type="button" class="button button--pill button--primary">All</button>
-      <button type="button" class="button button--pill">Sports</button>
-      <button type="button" class="button button--pill">Politics</button>
-      <button type="button" class="button button--pill">Entertainment</button>
-    </div>
-    <div class="events-grid">
-      <article class="event-card card">
-        <div class="event-card__top-row">
-          <p class="event-card__metadata">Sports · Kalshi</p>
-          <p class="badge badge--positive">Open</p>
-        </div>
-
-        <h2 class="event-card__title">Will France win the 2026 Men's World Cup?</h2>
-
-        <div class="event-card__comparison">
-          <section class="comparison-item">
-            <p>Market Probability</p>
-            <strong>42% Yes</strong>
-          </section>
-
-          <section class="comparison-item">
-            <p>Social sentiment</p>
-            <strong>57% Yes</strong>
-          </section>
-        </div>
-        <div class="event-card__footer">
-          <p>Volume: $1.2M</p>
-          <a href="/event/1">View analysis →</a>
-        </div>
-      </article>
-
-      <article class="event-card card">
-        <div class="event-card__top-row">
-          <p class="event-card__metadata">Politics · Polymarket</p>
-          <p class="badge badge--negative">Closed</p>
-        </div>
-
-        <h2 class="event-card__title">Will the Federal Reserve lower interest rates before the end of 2026?</h2>
-
-        <div class="event-card__comparison">
-          <section class="comparison-item">
-            <p>Market Probability</p>
-            <strong>8% Yes</strong>
-          </section>
-
-          <section class="comparison-item">
-            <p>Social sentiment</p>
-            <strong>93% Yes</strong>
-          </section>
-        </div>
-        <div class="event-card__footer">
-          <p>Volume: $850K</p>
-          <a href="/event/1">View analysis →</a>
-        </div>
-      </article>
+    <div id="events" class="events-grid">
+      <p>Loading events...</p>
     </div>
   </main>
+  <script src="../static/js/events.js"></script>
 </body>
 </html>

@@ -2,136 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Market event</title>
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body>
 <main>
+    <a href="/" class="site-name">OpenPredict</a>
     <header>
         <a href="/">← Back to events</a>
-        <h1>Will France win the 2026 Men’s World Cup?</h1>
+        <h1 id="event-title">Loading event...</h1>
     </header>
     <div class="detail-layout">
         <div class="detail-content">
+            <section class="contract-switcher">
+                <div id="contract-buttons" class="contract-buttons"></div>
+            </section>
             <div class="analysis-grid">
                 <section>
                     <div class="price-panels card">
                         <h2>Market-implied odds</h2>
                         <div class="price-panel">
                             <p>Yes</p>
-                            <strong>42%</strong>
+                            <strong id="yes-price">--</strong>
                         </div>
 
                         <div class="price-panel">
                             <p>No</p>
-                            <strong>58%</strong>
+                            <strong id="no-price">--</strong>
                         </div>
                         <div class="market-bar">
-                            <div class="market-bar__yes" style="width: 42%;"></div>
-                            <div class="market-bar__no" style="width: 58%;"></div>
+                            <div id="yes-bar" class="market-bar__yes"></div>
+                            <div id="no-bar" class="market-bar__no"></div>
                         </div>
                     </div>
                 </section>
                 <section class="social-analysis__card card">
                     <h2>Social Analysis</h2>
-                    <strong class="sentiment-result sentiment-result--positive">↑ 57% Yes</strong>
-                    <p>Discussion currently leans positive toward the Yes outcome.</p>
+                    <div class="insight-summary">
+                        <strong id="comparison-gap" class="insight-result">Loading...</strong>
+                        <p id="comparison-explanation" class="insight-explanation"></p>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-row__label">Market odds</span>
+                        <div class="comparison-row__bar">
+                            <div id="comparison-market-bar" class="comparison-row__fill comparison-row__fill--market"></div>
+                        </div>
+                        <strong id="comparison-market">--</strong>
+                    </div>
+                    <div class="comparison-row">
+                        <span class="comparison-row__label">Social prediction</span>
+                        <div class="comparison-row__bar">
+                            <div id="comparison-social-bar" class="comparison-row__fill comparison-row__fill--social"></div>
+                        </div>
+                        <strong id="comparison-social">--</strong>
+                    </div>
                 </section>
             </div>
             <section class="discussion-section">
                 <h2>Discussion</h2>
-                <article class="discussion-card card">
-                    <div class="discussion-card__header">
-                        <p class="discussion-card__author">u/example_user</p>
-                        <p class="badge badge--positive">Positive</p>
-                    </div>
-                    <div class="discussion-card__body">
-                        <p>
-                            France has looked much stronger throughout qualifying.
-                            Their midfield looks good enough to make a deep run.
-                        </p>
-                    </div>
-                    <div class="discussion-card__metadata">
-                        <p>142 points · r/worldcup · 2 hours ago</p>
-                    </div>
-                </article>
-
-                <article class="discussion-card card">
-                    <div class="discussion-card__header">
-                        <p class="discussion-card__author">u/another_user</p>
-                        <p class="badge badge--negative">Negative</p>
-                    </div>
-                    <div class="discussion-card__body">
-                        <p>
-                            France still looks vulnerable defensively against stronger teams.
-                        </p>
-                    </div>
-                    <div class="discussion-card__metadata">
-                        <p>87 points · r/soccer · 4 hours ago</p>
-                    </div>
-                </article>
-
-                <article class="discussion-card card">
-                    <div class="discussion-card__header">
-                        <p class="discussion-card__author">u/example_user</p>
-                        <p class="badge badge--positive">Positive</p>
-                    </div>
-                    <div class="discussion-card__body">
-                        <p>
-                            France has looked much stronger throughout qualifying.
-                            Their midfield looks good enough to make a deep run.
-                        </p>
-                    </div>
-                    <div class="discussion-card__metadata">
-                        <p>142 points · r/worldcup · 2 hours ago</p>
-                    </div>
-                </article>
-
-                <article class="discussion-card card">
-                    <div class="discussion-card__header">
-                        <p class="discussion-card__author">u/another_user</p>
-                        <p class="badge badge--negative">Negative</p>
-                    </div>
-                    <div class="discussion-card__body">
-                        <p>
-                            France still looks vulnerable defensively against stronger teams.
-                        </p>
-                    </div>
-                    <div class="discussion-card__metadata">
-                        <p>87 points · r/soccer · 4 hours ago</p>
-                    </div>
-                </article>
-
-                <article class="discussion-card card">
-                    <div class="discussion-card__header">
-                        <p class="discussion-card__author">u/example_user</p>
-                        <p class="badge badge--positive">Positive</p>
-                    </div>
-                    <div class="discussion-card__body">
-                        <p>
-                            France has looked much stronger throughout qualifying.
-                            Their midfield looks good enough to make a deep run.
-                        </p>
-                    </div>
-                    <div class="discussion-card__metadata">
-                        <p>142 points · r/worldcup · 2 hours ago</p>
-                    </div>
-                </article>
-
-                <article class="discussion-card card">
-                    <div class="discussion-card__header">
-                        <p class="discussion-card__author">u/another_user</p>
-                        <p class="badge badge--negative">Negative</p>
-                    </div>
-                    <div class="discussion-card__body">
-                        <p>
-                            France still looks vulnerable defensively against stronger teams.
-                        </p>
-                    </div>
-                    <div class="discussion-card__metadata">
-                        <p>87 points · r/soccer · 4 hours ago</p>
-                    </div>
-                </article>
+                <div id="discussion-list">
+                    <p>Loading discussion...</p>
+                </div>
             </section>
         </div>
 
@@ -140,28 +71,50 @@
             <dl>
                 <div>
                     <dt>Platform</dt>
-                    <dd>Kalshi</dd>
+                    <dd id="event-platform">Loading...</dd>
                 </div>
                 <div>
                     <dt>Status</dt>
-                    <dd>Open</dd>
+                    <dd id="event-status">Loading...</dd>
                 </div>
                 <div>
-                    <dt>Volume</dt>
-                    <dd>$1.2M</dd>
+                    <dt>Contract volume</dt>
+                    <dd id="event-volume">Loading...</dd>
                 </div>
                 <div>
-                    <dt>Created</dt>
-                    <dd>July 1, 2026</dd>
+                    <dt>Closes</dt>
+                    <dd id="contract-close">Loading...</dd>
                 </div>
                 <div>
                     <dt>Last updated</dt>
-                    <dd>2 minutes ago</dd>
+                    <dd id="event-updated">Loading...</dd>
                 </div>
             </dl>
             <a href="#" class="button button--primary">View on Kalshi ↗</a>
+            <div class="sidebar-social-info">
+                <h3>Data coverage</h3>
+                <dl>
+                    <div>
+                        <dt>Source</dt>
+                        <dd id="coverage-source">Loading...</dd>
+                    </div>
+                    <div>
+                        <dt>Posts analyzed</dt>
+                        <dd id="coverage-posts">Loading...</dd>
+                    </div>
+                    <div>
+                        <dt>Unique authors</dt>
+                        <dd id="coverage-authors">Loading...</dd>
+                    </div>
+                    <div>
+                        <dt>Directional predictions</dt>
+                        <dd id="coverage-predictions">Loading...</dd>
+                    </div>
+                </dl>
+            </div>
         </aside>
     </div>
 </main>
+<script src="../static/js/event.js"></script>
 </body>
 </html>

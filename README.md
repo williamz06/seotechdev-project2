@@ -44,6 +44,8 @@ Why did we use a local LLM instead of API calls?
 - Cheaper to run text classification over thousands of posts than an AI API call.
 - Running a classification ML model and sentiment analysis is infeasible given our time constraint, 
 lack of training data for broad prediction market sentiment, and would require fine-tuning to justify a better accuracy than a light-weight LLM. 
+-  We use ThreadPoolExecutor instead of ProcessPoolExecutor because Ollama runs Qwen in a container, so the python process is making HTTP requests to the container to query and get response -- I/O-bound. 
+
 
 1. Runs `--all` (all CSVs) or `--input`
 2. deriver event_id from file_name (in the future, would cross-check db)

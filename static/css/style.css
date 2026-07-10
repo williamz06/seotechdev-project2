@@ -44,17 +44,14 @@ header > a:hover {
     text-decoration: underline;
 }
 
+header h1 {
+    margin: 0 0 1rem;
+}
+
 main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
-}
-
-.category-filters {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    padding: 1rem 0;
 }
 
 .button {
@@ -66,21 +63,23 @@ main {
     cursor: pointer;
 }
 
-.button--pill {
-    border-radius: 999px;
-    padding: 0.5rem 0.9rem;
-    border: 1px solid var(--border);
-    background: var(--surface);
-}
-
 .button--primary {
     background: var(--accent);
     color: var(--surface);
     border: 1px solid var(--accent-secondary);
 }
 
-.button--pill:not(.button--primary):hover {
-    background-color: var(--surface-secondary);
+.site-name {
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.site-name:hover {
+    text-decoration: underline;
 }
 
 .events-grid {
@@ -141,33 +140,35 @@ main {
 .event-card__title {
     margin: 0;
     font-size: 1.4rem;
-    padding-bottom: 0.75rem;
 }
 
-.event-card__comparison {
+.contract-item {
+    padding-bottom: 0.6rem;
+}
+
+.contract-row {
     display: flex;
-    gap: 1rem;
     justify-content: space-between;
-    align-items: flex-start;
+    padding: 0.6rem 0;
 }
 
-.comparison-item {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+.contract-bar {
+    height: 0.6rem;
+    background: var(--surface-secondary);
+    border-radius: 999px;
+    overflow: hidden;
 }
 
-.comparison-item p {
+.contract-bar__fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+}
+
+.more-contracts {
     margin: 0;
-    font-size: 0.9rem;
     color: var(--text-muted);
-}
-
-.comparison-item strong {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 0.9rem;
 }
 
 .event-card__footer {
@@ -247,7 +248,47 @@ main {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
+}
+
+.contract-switcher {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-top: 1rem;
+    padding: 0.75rem 0;
+    background: var(--page-background);
+    border-bottom: 1px solid transparent;
+}
+
+.contract-switcher--stuck {
+    border-bottom-color: var(--border);
+}
+
+.contract-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.contract-button {
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-primary);
+    font: inherit;
+    cursor: pointer;
+}
+
+.contract-button--selected {
+    border-color: var(--accent-secondary);
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.contract-button:hover:not(.contract-button--selected) {
+    background: var(--surface-secondary);
 }
 
 .social-analysis__card {
@@ -263,22 +304,56 @@ main {
     font-size: 1.25rem;
 }
 
-/*.social-analysis__card strong {*/
-/*    display: block;*/
-/*    margin: 0.5rem 0;*/
-/*    font-size: 2rem;*/
-/*    color: var(--positive);*/
-/*}*/
-
-.sentiment-result {
-    display: flex;
-    gap: 0.6rem;
-    margin: 0.5rem 0;
+.insight-result {
+    flex: 0 0 auto;
     font-size: 2rem;
+    white-space: nowrap;
 }
 
-.sentiment-result--positive {
-    color: var(--positive);
+.insight-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.insight-explanation {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.comparison-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.comparison-row__label {
+    width: 7rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.comparison-row__bar {
+    flex: 1;
+    height: 0.55rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--surface-secondary);
+}
+
+.comparison-row__fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.comparison-row__fill--market {
+    background: var(--accent);
+}
+
+.comparison-row__fill--social {
+    background: #9333ea;
 }
 
 .analysis-grid > section {
@@ -323,10 +398,24 @@ main {
     text-align: right;
 }
 
-
-.market-sidebar > a {
+.button {
     display: block;
     text-align: center;
+}
+
+.sidebar-social-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.sidebar-social-info h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+}
+
+.sidebar-social-info dl div {
+    border-bottom: none;
 }
 
 .discussion-card {
@@ -341,7 +430,6 @@ main {
     gap: 1rem;
 }
 
-.discussion-card__sentiment,
 .discussion-card__body p,
 .discussion-card__metadata p {
     margin: 0;
