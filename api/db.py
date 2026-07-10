@@ -24,9 +24,11 @@ def get_conn() -> sqlite3.Connection:
 
 
 def init_tables():
-    if USE_POSTGRES:
-        with get_conn() as conn:
-            conn.execute("""
+    conn = get_conn()
+    try:
+        cur = conn.cursor()
+        if USE_POSTGRES:
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS bluesky_post (
                     uri           TEXT PRIMARY KEY,
                     cid           TEXT,
@@ -46,9 +48,9 @@ def init_tables():
                     fetched_at    TEXT
                 )
             """)
-            conn.execute("""
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS post_prediction (
-                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id              SERIAL PRIMARY KEY,
                     uri             TEXT REFERENCES bluesky_post(uri),
                     event_id        TEXT,
                     is_predictive   INTEGER,
@@ -58,10 +60,7 @@ def init_tables():
                     classified_at   TEXT
                 )
             """)
-    else:
-        conn = get_conn()
-        try:
-            cur = conn.cursor()
+        else:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS bluesky_post (
                     uri           TEXT PRIMARY KEY,
@@ -98,9 +97,9 @@ def init_tables():
                 cur.execute("ALTER TABLE post_prediction ADD COLUMN event_id TEXT")
             except Exception:
                 pass
-            conn.commit()
-        finally:
-            conn.close()
+        conn.commit()
+    finally:
+        conn.close()
 
 
 def upsert_bluesky_posts(rows: list[dict], event_id: str):

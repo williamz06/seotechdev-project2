@@ -6,7 +6,6 @@ const eventStatus = document.getElementById("event-status");
 const eventVolume = document.getElementById("event-volume");
 const eventUpdated = document.getElementById("event-updated");
 const contractClose = document.getElementById("contract-close");
-const kalshiLink = document.getElementById("kalshi-link");
 const contractButtons = document.getElementById("contract-buttons");
 const contractSwitcher = document.querySelector(".contract-switcher");
 const yesPrice = document.getElementById("yes-price");
