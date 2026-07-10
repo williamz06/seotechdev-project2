@@ -99,3 +99,28 @@ def load_posts(event_id: str | None = None) -> list[dict]:
         else:
             rows = conn.execute("SELECT * FROM bluesky_post").fetchall()
     return [dict(r) for r in rows]
+
+def get_dashboard_predictions(event_id: str | None = None) -> list[dict]:
+    query = """
+        SELECT 
+            p.uri,
+            p.author_handle,
+            p.text,
+            p.like_count,
+            p.created_at,
+            pred.is_predictive,
+            pred.predicted_party,
+            pred.confidence,
+            pred.reason
+        FROM bluesky_post p
+        LEFT JOIN post_prediction pred ON p.uri = pred.uri
+"""
+    with get_conn() as conn:
+        if event_id:
+            query += " WHERE p.event_id = ? ORDER BY pred.id DESC;"
+            rows = conn.execute(query, (event_id,)).fetchall()
+        else:
+            query += " ORDER BY pred.id DESC;"
+            rows = conn.execute(query).fetchall()
+    
+    return [dict(r) for r in rows]

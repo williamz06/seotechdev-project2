@@ -31,7 +31,7 @@ except Exception:
 EVENT_ID = "US_PREZ_2028_BASELINE"
 
 KICKOFF = datetime(2026, 7, 6, 19, 0, tzinfo=timezone.utc)
-MATCH_MINUTES =  120
+MATCH_MINUTES = 120
 WINDOW_PAD_MIN = 30 # buffer
 
 # Matching keywords in posts
