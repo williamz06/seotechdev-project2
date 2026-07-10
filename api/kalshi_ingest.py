@@ -35,6 +35,7 @@ class Market(db.Model):
     volume = db.Column(db.Float)
     observed_at = db.Column(db.String)
     created_at = db.Column(db.String)
+    url = db.Column(db.String)
 
     def __repr__(self):
         return f"Market('{self.ticker}', '{self.title}', yes={self.yes_price})"
@@ -66,6 +67,7 @@ def normalize_kalshi_market(m):
         "volume": float(m["volume_fp"]),
         "observed_at": m["updated_time"],
         "created_at": m["created_time"],
+        "url": build_market_url(m["ticker"], m["event_ticker"]),
     }
 
 def upsert_markets(markets):
@@ -83,6 +85,7 @@ def upsert_markets(markets):
                 existing.no_price = market["no_price"]
                 existing.volume = market["volume"]
                 existing.observed_at = market["observed_at"]
+                existing.url = market["url"]
             else:
                 new_market = Market(**market)
                 db.session.add(new_market)
@@ -94,6 +97,10 @@ def upsert_markets(markets):
                 observed_at=market["observed_at"],
             ))
         db.session.commit()
+
+def build_market_url(ticker, event_ticker):
+    series_ticker = event_ticker.rsplit('-', 1)[0]
+    return f"https://kalshi.com/markets/{series_ticker.lower()}/market/{event_ticker.lower()}?op_market_ticker={ticker}"
 
 BASE_URL = "https://external-api.kalshi.com/trade-api/v2"
 
