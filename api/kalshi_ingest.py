@@ -352,7 +352,7 @@ if __name__ == "__main__":
             time.sleep(0.3)
 
         print(f"{len(all_markets)} eligible markets found")
-        all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:100]
+        all_markets = sorted(all_markets, key=lambda m: float(m["volume_fp"]), reverse=True)[:10]
         upsert_markets(all_markets)
 
         sorted_markets = sorted(all_markets, key=lambda m: m["event_ticker"])

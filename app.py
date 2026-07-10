@@ -34,6 +34,9 @@ EVENT_NAMES = {
     "CONTROLH-2026": "2026 U.S. House Control",
     "CONTROLS-2026": "2026 U.S. Senate Control",
     "KXCAGOVPRIMARY1ST-26JUN02-1ST": "2026 California Governor Primary",
+    "KXPRESNOMD-28": "2028 Democratic Presidential Nominee",
+    "KXMAYORLA-26": "2026 LA Mayoral Race",
+    "KXGOVCA-26": "2026 California Governor Race",
 }
 
 PARTY_LABEL_TO_SUPPORT = {
