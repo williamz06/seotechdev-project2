@@ -18,7 +18,7 @@ if USE_POSTGRES:
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 SOCIAL_FILES = {
-    "KXPRESPARTY-2028": "classified_US_PREZ_2028_BASELINE.csv",
+    "KXPRESPARTY-2028": "prediction/output/classified_KXPRESPARTY_2028_SAMPLE.csv",
     "CONTROLH-2026": "prediction/output/classified_CONTROLH_2026.csv",
     "CONTROLS-2026": "prediction/output/classified_CONTROLS_2026.csv",
     "KXCAGOVPRIMARY1ST-26JUN02-1ST": "prediction/output/classified_KXCAGOVPRIMARY1ST_26JUN02_1ST.csv",
@@ -60,6 +60,7 @@ def get_contract(row):
         "volume": row["volume"],
         "observed_at": row["observed_at"],
         "created_at": row["created_at"],
+        "url": row["url"],
     }
 
 
