@@ -1,3 +1,4 @@
+const kalshiLink = document.getElementById("kalshi-link");
 const eventTitle = document.getElementById("event-title");
 const eventTicker = window.location.pathname.split("/").pop();
 const eventPlatform = document.getElementById("event-platform");
@@ -226,6 +227,7 @@ function loadEvent() {
         })
         .then(function (event) {
             eventTitle.textContent = event.display_name;
+            kalshiLink.href = `https://kalshi.com/markets/${eventTicker.toLowerCase()}`;
             document.title = event.display_name;
             eventPlatform.textContent = event.platform;
             showContracts(event.contracts);
